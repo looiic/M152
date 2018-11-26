@@ -9,6 +9,8 @@ const upload = multer({dest: 'uploads/'});
 var mongoose   = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/db');
 
+const { exec } = require('child_process');
+
 const app = express();
 app.use('/song', trackRoute);
 
@@ -78,6 +80,18 @@ trackRoute.post('/', upload.any(), function(req,res,next){
 
   }
 
+
+})
+
+trackRoute.get('/', function(req,res,next){
+  //Example how to run a Command for the Commandline
+  //Could use this for checking the bitrate of the uploaded audiofile
+  exec('git version', (err, stdout, stderr) => {
+    if (err) {
+      return;
+    }
+    res.json(stdout);
+  });
 
 })
 
