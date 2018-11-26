@@ -1,0 +1,26 @@
+version: "3"
+services:
+  server:
+    image: node:10.13.0-alpine
+    working_dir: /home/node/app
+    user: root
+    environment:
+      - NODE_ENV=production
+    volumes: 
+      - C:/Users/5634/project/M152/server:/home/node/app
+    ports:
+      - "3000:3000"
+    command: "node server.js"
+  client:
+    build: ./client
+    user: "root"
+    working_dir: /home/node/app/m152
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - C:/Users/5634/project/M152/client:/home/node/app
+    ports:
+      - "4200:4200"
+    command: "npm start"
+    depends_on:
+      - server
