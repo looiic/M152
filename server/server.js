@@ -8,6 +8,7 @@ const multer = require('multer');
 const upload = multer({dest: 'uploads/'});
 var mongoose   = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/db');
+var spawn = require('child_process').spawn;
 
 const { exec } = require('child_process');
 
@@ -15,32 +16,6 @@ const app = express();
 app.use('/song', trackRoute);
 
 
-// var storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//         cb(null, 'uploads/')
-//     },
-//     filename: function (req, file, cb) {
-//         var songName = Date.now() + '.mp3';
-//         cb(null, songName)
-//     }
-// });
-//
-// var upload = multer({ storage: storage }).single('song');
-//
-// trackRoute.post('/', function (req, res) {
-//     upload(req, res, function (err) {
-//         if (err) {
-//             // An error occurred when uploading
-//             console.log(err);
-//         }
-//         res.json({
-//             success: true,
-//             message: 'Song uploaded!'
-//         });
-//
-//         // Everything went fine
-//     })
-// });
 
 var Song = mongoose.model('Song', {
     titel: {
@@ -55,24 +30,31 @@ var Song = mongoose.model('Song', {
 })
 
 trackRoute.post('/', upload.any(), function(req,res,next){
-
   if(req.files){
     req.files.forEach(function(file){
-      var filename = Date.now() + '.mp3';
-      fs.rename(file.path, 'uploads/' + filename, function (err){
+      var filename = Date.now().toString();
+      var savename = filename + '.mp3';
+      fs.rename(file.path, 'uploads/' + savename, function (err){
         if(err)throw err;
 
         var song = new Song({
           titel: req.body.titel,
           interpret: req.body.interpret,
-          song: filename
+          song: savename
+        });
+
+        convertAudio(filename).then(function(data){
+          res.json(data);
+        }, function(err){
+
         });
 
         song.save(function(err, result){
           if(err){
 
           }
-          res.json(result);
+
+          console.log("saved");
         })
       })
     })
@@ -82,6 +64,34 @@ trackRoute.post('/', upload.any(), function(req,res,next){
 
 
 })
+
+
+function convertAudio(file){
+
+  return new Promise((resolve, reject) => {
+
+    file = 'uploads/' + file;
+
+    var converter = spawn('ffmpeg', ['-i', file + '.mp3', '-b:a', '96k', '-bufsize', '64k', file + '-96.mp3']);
+
+    converter.stderr.on('data', function (data) {
+        console.log(data.toString());
+    });
+
+    converter.stderr.on('end', function () {
+        resolve('file has been converted succesfully');
+    });
+
+    converter.stderr.on('exit', function () {
+        reject('child process exited');
+    });
+
+
+
+  })
+}
+
+
 
 trackRoute.get('/', function(req,res,next){
   //Example how to run a Command for the Commandline
