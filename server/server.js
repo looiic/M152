@@ -7,7 +7,7 @@ const fs = require('fs');
 const multer = require('multer');
 const upload = multer({dest: 'uploads/'});
 var mongoose   = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/db');
+mongoose.connect('mongodb://root:myPasswordIsSafe1234@mongo:27017/db');
 var spawn = require('child_process').spawn;
 
 const { exec } = require('child_process');
@@ -106,6 +106,6 @@ trackRoute.get('/', function(req,res,next){
 })
 
 
-app.listen(3005, () => {
+app.listen(3000, () => {
   console.log("App listening on port 3005!");
 });
