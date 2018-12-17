@@ -13,6 +13,7 @@ var spawn = require('child_process').spawn;
 const { exec } = require('child_process');
 
 const app = express();
+app.use(express.static('public'));
 app.use('/song', trackRoute);
 
 
@@ -24,7 +25,13 @@ var Song = mongoose.model('Song', {
     interpret: {
       type: String
     },
-    song: {
+    dateioriginial: {
+      type: String
+    },
+    datei96: {
+      type: String
+    },
+    datei48: {
       type: String
     }
 })
@@ -37,25 +44,83 @@ trackRoute.post('/', upload.any(), function(req,res,next){
       fs.rename(file.path, 'uploads/' + savename, function (err){
         if(err)throw err;
 
-        var song = new Song({
-          titel: req.body.titel,
-          interpret: req.body.interpret,
-          song: savename
+
+
+        this.filename = filename;
+
+
+        var convertAudio96 = new Promise((resolve, reject) => {
+
+          var inFile = 'uploads/' + this.filename;
+
+          var outFile = inFile + '-96.mp3';
+
+          var converter = spawn('ffmpeg', ['-i', inFile + '.mp3', '-b:a', '96k', '-bufsize', '64k', outFile]);
+
+          converter.stderr.on('data', function (data) {
+              console.log(data.toString());
+          });
+
+          converter.stderr.on('end', function () {
+              resolve(outFile);
+          });
+
+          converter.stderr.on('exit', function () {
+              reject('child process exited');
+          });
+
+
+
         });
 
-        convertAudio(filename).then(function(data){
-          res.json(data);
-        }, function(err){
+
+        var convertAudio48 = new Promise((resolve, reject) => {
+
+          var inFile = 'uploads/' + this.filename;
+
+          var outFile = inFile + '-48.mp3';
+
+          var converter = spawn('ffmpeg', ['-i', inFile + '.mp3', '-b:a', '48k', '-bufsize', '64k', outFile]);
+
+          converter.stderr.on('data', function (data) {
+              console.log(data.toString());
+          });
+
+          converter.stderr.on('end', function () {
+              resolve(outFile);
+          });
+
+          converter.stderr.on('exit', function () {
+              reject('child process exited');
+          });
+
+
 
         });
 
-        song.save(function(err, result){
-          if(err){
+        Promise.all([convertAudio96, convertAudio48])
+        .then(values => {
+          console.log('jaaaaaaaaaaaaaaaaaaaaaaaa maaaaaaaaaaaaaaaaaaaaaaaaaaannn');
+          console.log(values);
+          var song = new Song({
+            titel: req.body.titel,
+            interpret: req.body.interpret,
+            dateioriginial: savename,
+            datei96: values[0],
+            datei48: values[1]
+          });
+          console.log(song);
+          song.save(function(err, result){
+            if(err){
 
-          }
+            }
+            res.json(result);
+            console.log("saved");
+          })
+        });
 
-          console.log("saved");
-        })
+
+
       })
     })
 
@@ -63,47 +128,39 @@ trackRoute.post('/', upload.any(), function(req,res,next){
   }
 
 
-})
-
-
-function convertAudio(file){
-
-  return new Promise((resolve, reject) => {
-
-    file = 'uploads/' + file;
-
-    var converter = spawn('ffmpeg', ['-i', file + '.mp3', '-b:a', '96k', '-bufsize', '64k', file + '-96.mp3']);
-
-    converter.stderr.on('data', function (data) {
-        console.log(data.toString());
-    });
-
-    converter.stderr.on('end', function () {
-        resolve('file has been converted succesfully');
-    });
-
-    converter.stderr.on('exit', function () {
-        reject('child process exited');
-    });
+});
 
 
 
-  })
-}
+trackRoute.get('/:songtitel', function(req, res) {
+		Song.find({ titel: req.params.songtitel }, function(err, song) {
+			if (err)
+				res.send(err);
+			res.json(song);
+		});
+	});
 
 
+  trackRoute.get('/', function(req,res,next){
 
-trackRoute.get('/', function(req,res,next){
-  //Example how to run a Command for the Commandline
-  //Could use this for checking the bitrate of the uploaded audiofile
-  exec('git version', (err, stdout, stderr) => {
-    if (err) {
-      return;
-    }
-    res.json(stdout);
+    Song.find(function(err, songs){
+      res.json(songs);
+    })
+
   });
 
-})
+
+// trackRoute.get('/', function(req,res,next){
+//   //Example how to run a Command for the Commandline
+//   //Could use this for checking the bitrate of the uploaded audiofile
+//   exec('git version', (err, stdout, stderr) => {
+//     if (err) {
+//       return;
+//     }
+//     res.json(stdout);
+//   });
+//
+// });
 
 
 app.listen(3005, () => {
