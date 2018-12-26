@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      Ionic and NodeJs Musicplayer
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-card *ngFor="let song of songs">
+
+  <ion-card-header>
+    {{ song.titel }} - {{ song.interpret }}
+  </ion-card-header>
+
+  <ion-card-content>
+    <audio controls>
+      <source src="http://localhost:3005/{{ song.datei96 }}" type="audio/mpeg">
+          Your browser does not support the audio element.
+    </audio>
+  </ion-card-content>
+
+</ion-card>
+
+</ion-content>
