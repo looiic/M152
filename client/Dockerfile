@@ -8,8 +8,6 @@ WORKDIR /home/node/app
 
 COPY m152 /home/node/app/
 
-
-
 RUN npm install
 
 EXPOSE 4200

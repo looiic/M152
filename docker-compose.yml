@@ -1,16 +1,33 @@
 version: "3"
 services:
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: myPasswordIsSafe1234
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: myPasswordIsSafe1234
   server:
     image: node:10.13.0-alpine
     working_dir: /home/node/app
     user: root
     environment:
       - NODE_ENV=production
-    volumes: 
+    volumes:
       - C:/Users/5634/project/M152/server:/home/node/app
     ports:
       - "3000:3000"
     command: "node server.js"
+    depends_on:
+      - mongo
   client:
     build: ./client
     user: "root"
