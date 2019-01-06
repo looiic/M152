@@ -17,11 +17,13 @@ export class HomePage {
 
   }
   ionViewWillEnter(){
+    //immer wenn man auf die view kommt songs neu laden --> vielleicht ist ja ein neuer dazu gekommen wenn man von der uploadpage kommt
     this.getSongs().then(data => {
       this.songs = data;
     })
   }
 
+  //funktion die die "song" variabel füllt mit allen songs die auf der DB sind
   getSongs() {
     return new Promise(resolve => {
       this.http.get(this.apiUrl+'/song').subscribe(data => {
@@ -32,11 +34,12 @@ export class HomePage {
     });
   }
 
+  //auf die uploadpage navigieren
   uploadSong() {
     this.navCtrl.push(UploadPage);
   }
 
-
+//funktion, die die suche handelt
   onSearch(){
       this.http.get(this.apiUrl+'/song/' + this.search).subscribe(data => {
         this.songs = data;
