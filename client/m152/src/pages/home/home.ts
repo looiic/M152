@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { HttpClient } from '@angular/common/http';
+import { UploadPage } from '../upload/upload';
 
 @Component({
   selector: 'page-home',
@@ -8,7 +9,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class HomePage {
 
-  apiUrl = 'http://localhost:3005';
+  apiUrl = 'http://localhost:3000';
 
   songs: any;
 
@@ -26,6 +27,10 @@ export class HomePage {
         console.log(err);
       });
     });
+  }
+
+  uploadSong() {
+    this.navCtrl.push(UploadPage);
   }
 
 }

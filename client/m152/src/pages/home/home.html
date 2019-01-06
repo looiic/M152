@@ -3,7 +3,15 @@
     <ion-title>
       Ionic and NodeJs Musicplayer
     </ion-title>
+
+    <ion-buttons end>
+      <button ion-button icon-only (click)="uploadSong()">
+        <ion-icon name="add"></ion-icon>
+      </button>
+    </ion-buttons>
+
   </ion-navbar>
+
 </ion-header>
 
 <ion-content padding>
@@ -15,7 +23,7 @@
 
   <ion-card-content>
     <audio controls>
-      <source src="http://localhost:3005/{{ song.datei96 }}" type="audio/mpeg">
+      <source src="http://localhost:3000/{{ song.datei96 }}" type="audio/mpeg">
           Your browser does not support the audio element.
     </audio>
   </ion-card-content>

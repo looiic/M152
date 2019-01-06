@@ -7,7 +7,7 @@ const fs = require('fs');
 const multer = require('multer');
 const upload = multer({dest: 'uploads/'});
 var mongoose   = require('mongoose');
-mongoose.connect('mongodb://root:myPasswordIsSafe1234@mongo:27017/db');
+mongoose.connect('mongodb://localhost:27017/db', { useNewUrlParser: false });
 var spawn = require('child_process').spawn;
 
 const { exec } = require('child_process');
@@ -46,7 +46,7 @@ trackRoute.post('/', upload.any(), function(req,res,next){
     req.files.forEach(function(file){
       var filename = Date.now().toString();
       var savename = filename + '.mp3';
-      fs.rename(file.path, 'uploads/' + savename, function (err){
+      fs.rename(file.path, 'public/uploads/' + savename, function (err){
         if(err)throw err;
 
 
@@ -56,11 +56,11 @@ trackRoute.post('/', upload.any(), function(req,res,next){
 
         var convertAudio96 = new Promise((resolve, reject) => {
 
-          var inFile = 'uploads/' + this.filename;
+          var inFile = 'public/uploads/' + this.filename;
 
-          var outFile = inFile + '-96.mp3';
+          var outFile = 'uploads/' + this.filename + '-96.mp3';
 
-          var converter = spawn('ffmpeg', ['-i', inFile + '.mp3', '-b:a', '96k', '-bufsize', '64k', outFile]);
+          var converter = spawn('ffmpeg', ['-i', inFile + '.mp3', '-b:a', '96k', '-bufsize', '64k', 'public/' + outFile]);
 
           converter.stderr.on('data', function (data) {
               console.log(data.toString());
@@ -81,11 +81,11 @@ trackRoute.post('/', upload.any(), function(req,res,next){
 
         var convertAudio48 = new Promise((resolve, reject) => {
 
-          var inFile = 'uploads/' + this.filename;
+          var inFile = 'public/uploads/' + this.filename;
 
-          var outFile = inFile + '-48.mp3';
+          var outFile = 'uploads/' + this.filename + '-48.mp3';
 
-          var converter = spawn('ffmpeg', ['-i', inFile + '.mp3', '-b:a', '48k', '-bufsize', '64k', outFile]);
+          var converter = spawn('ffmpeg', ['-i', inFile + '.mp3', '-b:a', '48k', '-bufsize', '64k', "public/" + outFile]);
 
           converter.stderr.on('data', function (data) {
               console.log(data.toString());
@@ -169,5 +169,5 @@ trackRoute.get('/:songtitel', function(req, res) {
 
 
 app.listen(3000, () => {
-  console.log("App listening on port 3005!");
+  console.log("App listening on port 3000!");
 });
