@@ -1,10 +1,13 @@
 <ion-header>
   <ion-navbar>
     <ion-title>
+
+
       Ionic and NodeJs Musicplayer
     </ion-title>
 
     <ion-buttons end>
+
       <button ion-button icon-only (click)="uploadSong()">
         <ion-icon name="add"></ion-icon>
       </button>
@@ -12,18 +15,37 @@
 
   </ion-navbar>
 
+  <ion-item>
+    <ion-label>Turn switch on for best quality</ion-label>
+    <ion-toggle [(ngModel)]="quality"></ion-toggle>
+  </ion-item>
+
 </ion-header>
 
 <ion-content padding>
+
+  <ion-searchbar
+  [(ngModel)]="search"
+  [showCancelButton]="true"
+  (ionInput)="onSearch()"
+  (ionCancel)="onSearchCancel()">
+  </ion-searchbar>
+
   <ion-card *ngFor="let song of songs">
 
   <ion-card-header>
     {{ song.titel }} - {{ song.interpret }}
   </ion-card-header>
 
-  <ion-card-content>
+  <ion-card-content *ngIf="quality">
     <audio controls>
       <source src="http://localhost:3000/{{ song.datei96 }}" type="audio/mpeg">
+          Your browser does not support the audio element.
+    </audio>
+  </ion-card-content>
+  <ion-card-content *ngIf="!quality">
+    <audio controls>
+      <source src="http://localhost:3000/{{ song.datei48 }}" type="audio/mpeg">
           Your browser does not support the audio element.
     </audio>
   </ion-card-content>

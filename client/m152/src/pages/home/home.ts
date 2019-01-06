@@ -10,13 +10,16 @@ import { UploadPage } from '../upload/upload';
 export class HomePage {
 
   apiUrl = 'http://localhost:3000';
-
+  search: string;
   songs: any;
 
   constructor(public navCtrl: NavController, public http: HttpClient) {
-      this.getSongs().then(data => {
-        this.songs = data;
-      })
+
+  }
+  ionViewWillEnter(){
+    this.getSongs().then(data => {
+      this.songs = data;
+    })
   }
 
   getSongs() {
@@ -31,6 +34,15 @@ export class HomePage {
 
   uploadSong() {
     this.navCtrl.push(UploadPage);
+  }
+
+
+  onSearch(){
+      this.http.get(this.apiUrl+'/song/' + this.search).subscribe(data => {
+        this.songs = data;
+      }, err => {
+        console.log(err);
+      });
   }
 
 }
